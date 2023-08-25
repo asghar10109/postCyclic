@@ -137,6 +137,7 @@ const login = async (req, res) => {
 /** Register user */
 const register = async (req, res) => {
     try {
+        
         const emailValidation = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
         const pass = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{7,15}$/;
         if (!req.body.email) {
@@ -196,7 +197,7 @@ const register = async (req, res) => {
                 if (user) {
                     let subject = "For Registration Verification code"
                     let random = verificationCode
-                    sendEmail(user.name,user.email,subject,random)
+                  //  sendEmail(user.name,user.email,subject,random)
                     return res.status(200).send({
                         status: 1,
                         message: 'User registered successfully',
@@ -222,10 +223,11 @@ const register = async (req, res) => {
 
         }
     } catch (error) {
-        return res.status(500).send({
-            status: 0,
-            message: error.message,
-        });
+        // return res.status(500).send({
+        //     status: 0,
+        //     message: error.message,
+        // });
+        console.log(error);
     }
 };
 

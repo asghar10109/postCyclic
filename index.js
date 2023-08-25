@@ -35,7 +35,7 @@ dotenv.config();
 //  const server = require('https').createServer(options, app);
 const server = require('http').createServer(app);
 
-
+mongoose.set('strictQuery', true);
 //** Datrabase Connection **//
 mongoose.connect(
   process.env.DB_CONNECT,
