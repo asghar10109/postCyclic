@@ -109,7 +109,7 @@ userSchema.methods.generateAuthToken = async function () {
       email: user.email,
       userId: user._id,
     },
-    Variables.JWT_KEY
+    process.env.JWT_KEY
   );
   user.user_authentication = token;
   await user.save();

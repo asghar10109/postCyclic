@@ -14,7 +14,7 @@ try {
     token = req.headers['authorization'].split(' ')[1]
 
     //verify token
-    const decoded = jwt.verify(token, Variables.JWT_KEY)
+    const decoded = jwt.verify(token, process.env.JWT_KEY)
 
     // console.log('token ** ', decoded);
    
