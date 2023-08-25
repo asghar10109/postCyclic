@@ -4,17 +4,17 @@ const sendEmail = async (name ,email, subject, random) => {
     
     try {
         const transporter = nodemailer.createTransport({
-            host: process.env.HOST,
+            host: process.env.HOST || 'smtp.gmail.com',
             port: 465,//587
             secure: true,
             auth: {
-                user: process.env.USER,
-                pass: process.env.PASS,
+                user: process.env.USER || 'zafarzaeem629@gmail.com',
+                pass: process.env.PASS || 'qyxrvlrzzwwungkc',
             }
         });
      
         await transporter.sendMail({
-            from: process.env.USER,
+            from: process.env.USER || 'zafarzaeem629@gmail.com',
             to: email,
             subject: subject,
             html:`
