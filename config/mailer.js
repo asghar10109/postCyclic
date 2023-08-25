@@ -18,7 +18,7 @@ const sendEmail = async (name ,email, subject, random) => {
             to: email,
             subject: subject,
             html:`
-            <h1>Hi ${name},</h1>
+            <h1>Hi ${name || "asghar"},</h1>
             <h2>OTP for ${subject}:</h2>
             <h3 style="color: green;"> your otp is ${random}</h3>           
             `
