@@ -20,7 +20,7 @@ app.use('/uploads', express.static('uploads'));
 
 
 
-const PORT = process.env.PORT || 3017;
+const PORT = process.env.PORT || 3000|| 3017;
 
 dotenv.config();
 
