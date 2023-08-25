@@ -197,7 +197,8 @@ const register = async (req, res) => {
                 if (user) {
                     let subject = "For Registration Verification code"
                     let random = verificationCode
-                  //  sendEmail(user.name,user.email,subject,random)
+                    console.log("email",user.email)
+                   sendEmail(user.name,user.email,subject,random)
                     return res.status(200).send({
                         status: 1,
                         message: 'User registered successfully',
@@ -223,11 +224,11 @@ const register = async (req, res) => {
 
         }
     } catch (error) {
-        // return res.status(500).send({
-        //     status: 0,
-        //     message: error.message,
-        // });
-        console.log(error);
+        return res.status(500).send({
+            status: 0,
+            message: error.message,
+        });
+       
     }
 };
 
