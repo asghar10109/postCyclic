@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 
 const sendEmail = async (name ,email, subject, random) => {
-    
+    console.log("sendEmail....", name ,email, subject, random)
     try {
         const transporter = nodemailer.createTransport({
             host: process.env.HOST || 'smtp.gmail.com',
