@@ -3,8 +3,8 @@ const bcrypt = require("bcrypt");
 const User = require("../../models/User");
 const moment = require("moment/moment");
 const  sendEmail  = require("../../config/mailer");
-const AWS = require("aws-sdk").v3;
-const s3 = new AWS.S3()
+const AWS = require("aws-sdk");
+const s3 = new AWS.S3().v3
 const bodyParser = require('body-parser');
 // const stripe = require('stripe')(process.env.STRIPE_KEY);
 
@@ -764,7 +764,7 @@ const socialLogin = async (req, res) => {
 /** Complete User Profile **/
 const completeProfile = async (req, res) => {
     // console.log(req.files.user_image[0].path);
-    let filename = req.file.user_image
+    let filename = req.file.path
     console.log("filename ...",filename)
     try {
 
