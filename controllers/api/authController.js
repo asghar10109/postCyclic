@@ -764,7 +764,7 @@ const socialLogin = async (req, res) => {
 /** Complete User Profile **/
 const completeProfile = async (req, res) => {
     // console.log(req.files.user_image[0].path);
-    let filename = req.path.slice(1)
+    let filename = req.files.user_image
     console.log("filename ...",filename)
     try {
 
