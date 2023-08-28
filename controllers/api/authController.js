@@ -760,7 +760,7 @@ const socialLogin = async (req, res) => {
 
 /** Complete User Profile **/
 const completeProfile = async (req, res) => {
-    // console.log(req.files.user_image[0].path);
+    console.log(req.files.user_image[0].path);
     try {
 
         if (!req.body.id) {
