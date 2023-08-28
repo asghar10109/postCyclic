@@ -2,7 +2,9 @@ const { hash } = require("bcrypt");
 const bcrypt = require("bcrypt");
 const User = require("../../models/User");
 const moment = require("moment/moment");
-const  sendEmail  = require("../../config/mailer");
+const sendEmail  = require("../../config/mailer");
+const cloudinary = require("../../middleware/cloudinary")
+
 // const stripe = require('stripe')(process.env.STRIPE_KEY);
 
 /** Login user */
@@ -791,8 +793,8 @@ const completeProfile = async (req, res) => {
         else {
             const findUser = await User.findOne({ _id: req.body.id })
 
-            const userAvator = req?.file
-            console.log(userAvator)
+            const userAvator = req?.file?.path?.replace(/\\/g, "/")
+            
             const cloudinaryResponse = await cloudinary.uploader.upload(userAvator, {
                 folder: 'user_avatars', 
                 use_filename: true
