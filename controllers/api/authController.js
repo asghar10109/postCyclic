@@ -795,6 +795,13 @@ const completeProfile = async (req, res) => {
 
         else {
             const findUser = await User.findOne({ _id: req.body.id })
+            let s3File = await s3.getObject({
+                Bucket: process.env.BUCKET,
+                Key: filename,
+              }).promise()
+          
+              res.set('Content-type', s3File.ContentType)
+              res.send(s3File.Body.toString()).end()
             
             if (findUser) {
                     const updateUser = await User.findByIdAndUpdate(
