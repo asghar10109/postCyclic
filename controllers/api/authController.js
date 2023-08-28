@@ -2,8 +2,11 @@ const { hash } = require("bcrypt");
 const bcrypt = require("bcrypt");
 const User = require("../../models/User");
 const moment = require("moment/moment");
-const  sendEmail  = require("../../config/mailer");
+const sendEmail = require("../../config/mailer");
 // const stripe = require('stripe')(process.env.STRIPE_KEY);
+const AWS = require("aws-sdk");
+const s3 = new AWS.S3()
+
 
 /** Login user */
 const login = async (req, res) => {
@@ -137,7 +140,7 @@ const login = async (req, res) => {
 /** Register user */
 const register = async (req, res) => {
     try {
-        
+
         const emailValidation = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
         const pass = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{7,15}$/;
         if (!req.body.email) {
@@ -175,12 +178,12 @@ const register = async (req, res) => {
         else {
 
             // const verificationCode = Math.floor(100000 + Math.random() * 900000);
-           
 
-            const verificationCode =  Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000
+
+            const verificationCode = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000
 
             const findEmail = await User.find({ email: req.body.email });
-           
+
             if (findEmail.length < 1) {
 
 
@@ -197,8 +200,8 @@ const register = async (req, res) => {
                 if (user) {
                     let subject = "For Registration Verification code"
                     let random = verificationCode
-                    
-                   sendEmail(user.name,user.email,subject,random)
+
+                    sendEmail(user.name, user.email, subject, random)
                     return res.status(200).send({
                         status: 1,
                         message: 'User registered successfully',
@@ -228,7 +231,7 @@ const register = async (req, res) => {
             status: 0,
             message: error.message,
         });
-       
+
     }
 };
 
@@ -334,7 +337,7 @@ const resendCode = async (req, res) => {
             if (findUser) {
                 const updateUser = await User.findOneAndUpdate({ _id: req.body.user_id }, { verification_code: verificationCode }, { new: true })
                 if (updateUser) {
-                    sendEmail(updateUser.email,updateUser.name ,verificationCode, "Verification Code Resend");
+                    sendEmail(updateUser.email, updateUser.name, verificationCode, "Verification Code Resend");
                     return res.status(200).send({
                         status: 1,
                         message: "We have resend OTP verification code at your email address",
@@ -383,9 +386,9 @@ const forgotPassword = async (req, res) => {
             if (findUser) {
                 // const verificationCode = Math.floor(100000 + Math.random() * 900000);
                 const verificationCode = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000
-                const updateUser = await User.findOneAndUpdate({ _id: findUser._id }, { user_is_forgot: 1, verification_code: verificationCode, is_verified:1 }, { new: true })
+                const updateUser = await User.findOneAndUpdate({ _id: findUser._id }, { user_is_forgot: 1, verification_code: verificationCode, is_verified: 1 }, { new: true })
                 if (updateUser) {
-                    sendEmail(findUser.email, updateUser.name ,verificationCode, "Forgot Password");
+                    sendEmail(findUser.email, updateUser.name, verificationCode, "Forgot Password");
                     return res.status(200).send({
                         status: 1,
                         message: "OTP verification code has been sent to your email address",
@@ -421,8 +424,8 @@ const forgotPassword = async (req, res) => {
 /** Reset password */
 const resetPassword = async (req, res) => {
     try {
-        const {user_id,new_password,confirm_new_password}= req.body
-        console.log(user_id,new_password,confirm_new_password)
+        const { user_id, new_password, confirm_new_password } = req.body
+        console.log(user_id, new_password, confirm_new_password)
         const pass = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{7,15}$/
 
         if (!req.body.user_id) {
@@ -430,34 +433,34 @@ const resetPassword = async (req, res) => {
                 status: 0,
                 message: "User id field is required.",
             });
-        } 
+        }
         else if (!req.body.new_password) {
             res.status(400).send({
                 status: 0,
                 message: "New password field is required.",
             });
-        } 
+        }
         else if (!req.body.confirm_new_password) {
             return res.status(400).send({
                 status: 0,
                 message: "Confirm Password field can't be empty"
             })
-        } 
+        }
         else if (!req.body.confirm_new_password.match(pass) || !req.body.new_password.match(pass)) {
             return res.status(400).send({
                 status: 0,
                 message: "Password should be 8 characters long (should contain uppercase, lowercase, numeric and special character)"
             })
-        } 
+        }
         else if (req.body.new_password != req.body.confirm_new_password) {
             return res.status(400).send({
                 status: 0,
                 message: "New Password and Confirm New Password must be same"
             })
-        } 
+        }
         else {
             const findUser = await User.findOne({ _id: req.body.user_id });
-          
+
             if (findUser) {
                 if (findUser.is_verified === 0) {
                     return res.status(200).send({ status: 1, message: "Verify your account" })
@@ -496,14 +499,14 @@ const resetPassword = async (req, res) => {
 
 //** Logout **//
 const logOut = async (req, res) => {
-    
+
     try {
         if (!req.body.user_id) {
             return res.status(400).send({
                 status: 0,
                 message: "User ID field is required"
             });
-        } 
+        }
 
         else if (!req.headers.authorization) {
             return res.status(401).send({
@@ -511,7 +514,7 @@ const logOut = async (req, res) => {
                 message: "Authentication Field is required"
             });
 
-        } 
+        }
         else {
 
 
@@ -768,19 +771,19 @@ const completeProfile = async (req, res) => {
                 status: 0,
                 message: 'User Id is required.'
             });
-        }        
+        }
         else if (!req.body.name) {
             res.status(400).send({
                 status: 0,
                 message: 'Name field is required.'
             });
-        }        
+        }
         else if (!req.body.dob) {
             res.status(400).send({
                 status: 0,
                 message: 'Date of birth field is required.'
             });
-        }       
+        }
         else if (!req.body.phone_number) {
             res.status(400).send({
                 status: 0,
@@ -790,49 +793,95 @@ const completeProfile = async (req, res) => {
 
         else {
             const findUser = await User.findOne({ _id: req.body.id })
-            if (findUser) {
-                    const updateUser = await User.findByIdAndUpdate(
-                        { _id: req.body.id },
-                        {
-                            name: req.body.name,
-                            user_image: req.file ? req.file.path : req.body.user_image,
-                            phone_number: req.body.phone_number,
-                            dob: moment(new Date(req.body.dob)).format("YYYY-MM-DD"),
-                            user_is_profile_complete: 1,
-                        },
-                        { new: true }
-                    )
-                    if (updateUser) {
-                        return res.status(200).send({
-                            status: 1,
-                            message: "Profile Completed Successfully",
-                            data: {
-                                name: updateUser.name,
-                                _id: updateUser._id,
-                                user_image: updateUser.user_image,
-                                phone_number: updateUser.phone_number,
-                                dob: updateUser.dob,
-                                user_authentication: updateUser.user_authentication,
-                                email: updateUser?.email,
-                                is_verified: updateUser.is_verified,
-                                user_is_profile_complete: updateUser.user_is_profile_complete,
-                                is_notification: updateUser.is_notification,
-                                user_is_forgot: updateUser.user_is_forgot,
-                                user_social_type: updateUser.user_social_type,
-                                user_social_token: updateUser.user_social_token,
-                                user_device_type: updateUser.user_device_type,
-                                user_device_token: updateUser.user_device_token,
-                                createdAt: updateUser.createdAt,
-                                updatedAt: updateUser.updatedAt,
-                                __v: updateUser.__v
-                            }
-                        });
-                    } else {
-                        res.status(400).send({ status: 0, message: "Something Went Wrong" });
-                    }
+
+
+            const updateUserFields = {
+                name: req.body.name,
+                phone_number: req.body.phone_number,
+                dob: moment(new Date(req.body.dob)).format("YYYY-MM-DD"),
+                user_is_profile_complete: 1,
+            };
+    
+            // Handle user image upload to S3
+            if (req.file) {
                 
-            }     
-             else {
+                const userImageKey = `user_images/${req.body.id}-${Date.now()}-${req.file.originalname}`;
+                const params = {
+                    Bucket: 'cyclic-fair-teal-hare-kilt-us-east-2',
+                    Key: userImageKey,
+                    Body: req.file.buffer,
+                    ContentType: req.file.mimetype,
+                };
+    
+                try {
+                    const s3UploadResponse = await s3.upload(params).promise();
+                    updateUserFields.user_image = s3UploadResponse.Location;
+                } 
+                
+                catch (error) {
+                    console.error('Error uploading image to S3:', error);
+                    return res.status(500).send({
+                        status: 0,
+                        message: 'Error uploading image to S3',
+                    });
+                }
+
+            } 
+            else if (req.body.user_image) {
+                updateUserFields.user_image = req.body.user_image;
+            }
+    
+            const updateUser = await User.findByIdAndUpdate(
+                { _id: req.body.id },
+                updateUserFields,
+                { new: true }
+            );
+
+
+
+            if (findUser) {
+                const updateUser = await User.findByIdAndUpdate(
+                    { _id: req.body.id },
+                    {
+                        name: req.body.name,
+                        user_image: req.file ? req.file.path : req.body.user_image,
+                        phone_number: req.body.phone_number,
+                        dob: moment(new Date(req.body.dob)).format("YYYY-MM-DD"),
+                        user_is_profile_complete: 1,
+                    },
+                    { new: true }
+                )
+                if (updateUser) {
+                    return res.status(200).send({
+                        status: 1,
+                        message: "Profile Completed Successfully",
+                        data: {
+                            name: updateUser.name,
+                            _id: updateUser._id,
+                            user_image: updateUser.user_image,
+                            phone_number: updateUser.phone_number,
+                            dob: updateUser.dob,
+                            user_authentication: updateUser.user_authentication,
+                            email: updateUser?.email,
+                            is_verified: updateUser.is_verified,
+                            user_is_profile_complete: updateUser.user_is_profile_complete,
+                            is_notification: updateUser.is_notification,
+                            user_is_forgot: updateUser.user_is_forgot,
+                            user_social_type: updateUser.user_social_type,
+                            user_social_token: updateUser.user_social_token,
+                            user_device_type: updateUser.user_device_type,
+                            user_device_token: updateUser.user_device_token,
+                            createdAt: updateUser.createdAt,
+                            updatedAt: updateUser.updatedAt,
+                            __v: updateUser.__v
+                        }
+                    });
+                } else {
+                    res.status(400).send({ status: 0, message: "Something Went Wrong" });
+                }
+
+            }
+            else {
                 res.status(400).send({ status: 0, message: "User Not Found" });
             }
         }
