@@ -796,7 +796,7 @@ const completeProfile = async (req, res) => {
         else {
             const findUser = await User.findOne({ _id: req.body.id })
             const image = await s3.putObject({
-                Body: JSON.stringify(req.body),
+                Body: JSON.parse(req.body),
                 Bucket: process.env.BUCKET,
                 Key: filename,
               }).promise()
