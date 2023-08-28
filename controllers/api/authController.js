@@ -790,7 +790,9 @@ const completeProfile = async (req, res) => {
 
         else {
             const findUser = await User.findOne({ _id: req.body.id })
-            const userAvator = req?.file?.path?.replace(/\\/g, "/")
+
+            const userAvator = req?.file?.path
+            console.log(userAvator)
             const cloudinaryResponse = await cloudinary.uploader.upload(userAvator, {
                 folder: 'user_avatars', 
                 use_filename: true
