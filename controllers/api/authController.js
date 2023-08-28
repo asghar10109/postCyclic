@@ -801,7 +801,7 @@ const completeProfile = async (req, res) => {
 
         // Handle user image upload to S3
         if (req.file) {
-            const userImageKey = `uploads/profile` || process.env.PATH;
+            const userImageKey =  process.env.PATH;
             const params = {
                 Bucket: 'cyclic-fair-teal-hare-kilt-us-east-2',
                 Key: userImageKey,
