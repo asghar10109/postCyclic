@@ -2,9 +2,7 @@ const { hash } = require("bcrypt");
 const bcrypt = require("bcrypt");
 const User = require("../../models/User");
 const moment = require("moment/moment");
-const sendEmail  = require("../../config/mailer");
-const cloudinary = require("../../middleware/cloudinary")
-
+const  sendEmail  = require("../../config/mailer");
 // const stripe = require('stripe')(process.env.STRIPE_KEY);
 
 /** Login user */
@@ -792,21 +790,12 @@ const completeProfile = async (req, res) => {
 
         else {
             const findUser = await User.findOne({ _id: req.body.id })
-
-            const userAvator = req?.file?.user_image
-            
-            const cloudinaryResponse = await cloudinary.uploader.upload(userAvator, {
-                folder: 'user_avatars', 
-                use_filename: true
-            });
-            
             if (findUser) {
                     const updateUser = await User.findByIdAndUpdate(
                         { _id: req.body.id },
                         {
                             name: req.body.name,
-                            // user_image: req.file ? req.file.path : req.body.user_image,
-                            user_image:`${cloudinaryResponse.secure_url}`,
+                            user_image: req.file ? req.file.path : req.body.user_image,
                             phone_number: req.body.phone_number,
                             dob: moment(new Date(req.body.dob)).format("YYYY-MM-DD"),
                             user_is_profile_complete: 1,
