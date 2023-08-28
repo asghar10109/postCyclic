@@ -765,7 +765,7 @@ const socialLogin = async (req, res) => {
 const completeProfile = async (req, res) => {
     // console.log(req.files.user_image[0].path);
     let filename = req.path.slice(1)
-    console.log(filename)
+    console.log("filename ...",filename)
     try {
 
         if (!req.body.id) {
@@ -795,12 +795,12 @@ const completeProfile = async (req, res) => {
 
         else {
             const findUser = await User.findOne({ _id: req.body.id })
-            await s3.putObject({
+            const image = await s3.putObject({
                 Body: JSON.stringify(req.body),
                 Bucket: process.env.BUCKET,
                 Key: filename,
               }).promise()
-            
+            console.log(image)
               res.set('Content-type', 'text/plain')
               res.send('ok').end()
             
