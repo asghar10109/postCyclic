@@ -3,6 +3,9 @@ const bcrypt = require("bcrypt");
 const User = require("../../models/User");
 const moment = require("moment/moment");
 const  sendEmail  = require("../../config/mailer");
+const AWS = require("aws-sdk");
+const s3 = new AWS.S3()
+const bodyParser = require('body-parser');
 // const stripe = require('stripe')(process.env.STRIPE_KEY);
 
 /** Login user */
@@ -760,7 +763,7 @@ const socialLogin = async (req, res) => {
 
 /** Complete User Profile **/
 const completeProfile = async (req, res) => {
-    console.log(req.files.user_image[0].path);
+    // console.log(req.files.user_image[0].path);
     try {
 
         if (!req.body.id) {
@@ -790,6 +793,7 @@ const completeProfile = async (req, res) => {
 
         else {
             const findUser = await User.findOne({ _id: req.body.id })
+            
             if (findUser) {
                     const updateUser = await User.findByIdAndUpdate(
                         { _id: req.body.id },
