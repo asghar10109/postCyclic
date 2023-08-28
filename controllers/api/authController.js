@@ -824,6 +824,7 @@ const completeProfile = async (req, res) => {
                         status: 0,
                         message: 'Error uploading image to S3',
                     });
+
                 }
 
             } 
@@ -836,6 +837,7 @@ const completeProfile = async (req, res) => {
                 updateUserFields,
                 { new: true }
             );
+            console.log('Updated user', updateUser);
 
 
 
