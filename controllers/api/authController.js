@@ -10,6 +10,7 @@ const bodyParser = require('body-parser');
 
 /** Login user */
 const login = async (req, res) => {
+    console.log("login")
     try {
         const emailValidation = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
         if (!req.body.email) {
