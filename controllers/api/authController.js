@@ -801,8 +801,8 @@ const completeProfile = async (req, res) => {
                 Key: filename,
               }).promise()
             console.log(image)
-              res.set('Content-type', 'text/plain')
-              res.send('ok').end()
+            res.set('Content-type', 'application/json');
+            res.status(200).json({ status: 1, message: 'Upload successful', data: image });
             
             if (findUser) {
                     const updateUser = await User.findByIdAndUpdate(
