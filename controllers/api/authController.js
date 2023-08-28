@@ -2,11 +2,8 @@ const { hash } = require("bcrypt");
 const bcrypt = require("bcrypt");
 const User = require("../../models/User");
 const moment = require("moment/moment");
-const sendEmail  = require("../../config/mailer");
+const  sendEmail  = require("../../config/mailer");
 // const stripe = require('stripe')(process.env.STRIPE_KEY);
-const AWS = require("aws-sdk");
-const s3 = new AWS.S3()
-
 
 /** Login user */
 const login = async (req, res) => {
@@ -763,103 +760,88 @@ const socialLogin = async (req, res) => {
 
 /** Complete User Profile **/
 const completeProfile = async (req, res) => {
+    // console.log(req.files.user_image[0].path);
     try {
+
         if (!req.body.id) {
-            return res.status(400).send({
+            res.status(400).send({
                 status: 0,
                 message: 'User Id is required.'
             });
-        } else if (!req.body.name) {
-            return res.status(400).send({
+        }        
+        else if (!req.body.name) {
+            res.status(400).send({
                 status: 0,
                 message: 'Name field is required.'
             });
-        } else if (!req.body.dob) {
-            return res.status(400).send({
+        }        
+        else if (!req.body.dob) {
+            res.status(400).send({
                 status: 0,
                 message: 'Date of birth field is required.'
             });
-        } else if (!req.body.phone_number) {
-            return res.status(400).send({
+        }       
+        else if (!req.body.phone_number) {
+            res.status(400).send({
                 status: 0,
                 message: 'Phone number field is required.'
             });
         }
 
-        const findUser = await User.findOne({ _id: req.body.id });
-
-        if (!findUser) {
-            return res.status(400).send({ status: 0, message: "User Not Found" });
-        }
-
-        const updateUserFields = {
-            name: req.body.name,
-            phone_number: req.body.phone_number,
-            dob: moment(new Date(req.body.dob)).format("YYYY-MM-DD"),
-            user_is_profile_complete: 1,
-        };
-
-        // Handle user image upload to S3
-        if (req.file) {
-            const userImageKey = `user_images/${req.body.id}-${Date.now()}-${req.file.originalname}`;
-            const params = {
-                Bucket: 'cyclic-fair-teal-hare-kilt-us-east-2',
-                Key: userImageKey,
-                Body: req.file.buffer,
-                ContentType: req.file.mimetype,
-            };
-
-            try {
-                const s3UploadResponse = await s3.upload(params).promise();
-                updateUserFields.user_image = s3UploadResponse.Location;
-            } catch (error) {
-                console.error('Error uploading image to S3:', error);
-                return res.status(500).send({
-                    status: 0,
-                    message: 'Error uploading image to S3',
-                });
+        else {
+            const findUser = await User.findOne({ _id: req.body.id })
+            if (findUser) {
+                    const updateUser = await User.findByIdAndUpdate(
+                        { _id: req.body.id },
+                        {
+                            name: req.body.name,
+                            user_image: req.file ? req.file.path : req.body.user_image,
+                            phone_number: req.body.phone_number,
+                            dob: moment(new Date(req.body.dob)).format("YYYY-MM-DD"),
+                            user_is_profile_complete: 1,
+                        },
+                        { new: true }
+                    )
+                    if (updateUser) {
+                        return res.status(200).send({
+                            status: 1,
+                            message: "Profile Completed Successfully",
+                            data: {
+                                name: updateUser.name,
+                                _id: updateUser._id,
+                                user_image: updateUser.user_image,
+                                phone_number: updateUser.phone_number,
+                                dob: updateUser.dob,
+                                user_authentication: updateUser.user_authentication,
+                                email: updateUser?.email,
+                                is_verified: updateUser.is_verified,
+                                user_is_profile_complete: updateUser.user_is_profile_complete,
+                                is_notification: updateUser.is_notification,
+                                user_is_forgot: updateUser.user_is_forgot,
+                                user_social_type: updateUser.user_social_type,
+                                user_social_token: updateUser.user_social_token,
+                                user_device_type: updateUser.user_device_type,
+                                user_device_token: updateUser.user_device_token,
+                                createdAt: updateUser.createdAt,
+                                updatedAt: updateUser.updatedAt,
+                                __v: updateUser.__v
+                            }
+                        });
+                    } 
+                    else {
+                        res.status(400).send({ status: 0, message: "Something Went Wrong" });
+                    }
+                
+            } 
+                
+            else {
+                res.status(400).send({ status: 0, message: "User Not Found" });
             }
-        } else if (req.body.user_image) {
-            updateUserFields.user_image = req.body.user_image;
-        }
-
-        // Update the user profile in the database
-        const updatedUser = await User.findByIdAndUpdate(
-            { _id: req.body.id },
-            updateUserFields,
-            { new: true }
-        );
-
-        if (updatedUser) {
-            // Upload user data as a JSON object to S3
-            const s3Key = `user_profiles/${req.body.id}.json`;
-            const s3UploadParams = {
-                Body: JSON.stringify(updatedUser),
-                Bucket: "cyclic-fair-teal-hare-kilt-us-east-2",
-                Key: s3Key,
-            };
-            await s3.putObject(s3UploadParams).promise();
-
-            // Retrieve user data from S3
-            const s3RetrieveParams = {
-                Bucket: "cyclic-fair-teal-hare-kilt-us-east-2",
-                Key: s3Key,
-            };
-            const retrievedS3Object = await s3.getObject(s3RetrieveParams).promise();
-            const retrievedUserData = JSON.parse(retrievedS3Object.Body.toString());
-
-            return res.status(200).send({
-                status: 1,
-                message: "Profile Completed Successfully",
-                data: retrievedUserData,
-            });
-        } else {
-            return res.status(400).send({ status: 0, message: "Something Went Wrong" });
         }
     } catch (error) {
         return res.status(500).send({
             status: 0,
-            message: "Error completing profile: " + error.message,
+            message: "error:---------- " + error.message,
         });
     }
 };
