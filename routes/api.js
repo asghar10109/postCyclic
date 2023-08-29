@@ -25,7 +25,7 @@ const {createPost,createReaction,createComment,getallpost,savedpost,reportpost,g
 
 //** Multer **//
 const { upload } = require("../middleware/utils");
-
+// const { ProfilePicUpload } = require("../middleware/s3multer");
 
 const { getInAppNotification, userNotifications } = require("../controllers/api/notificationController");
 
@@ -43,7 +43,7 @@ router.post('/complete-profile', upload.single('user_image'), completeProfile);
 router.post("/logout", verifyToken, logOut);
 router.get("/profile-details/:id", verifyToken, userProfile);
 router.get("/delete-profile/:id", verifyToken, deleteUserProfile);
-router.post('/update-profile', upload.single('user_image'), verifyToken, updateProfile);
+// router.post('/update-profile', upload.single('user_image'), verifyToken, updateProfile);
 
 
 
@@ -55,7 +55,7 @@ router.get("/content/:type", getContent);
 /** Post */
 //============================================================
 
-router.post("/post",verifyToken,upload.single('post_image'),createPost);
+// router.post("/post",verifyToken,upload.single('post_image'),createPost);
 
 router.post("/addreaction",verifyToken,createReaction);
 router.post("/addcomments",verifyToken,createComment);

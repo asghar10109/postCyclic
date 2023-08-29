@@ -811,7 +811,7 @@ const completeProfile = async (req, res) => {
         
             const response = await s3.send(putObjectCommand);
             console.log('Object uploaded:', response);
-            
+
             if (findUser) {
                     const updateUser = await User.findByIdAndUpdate(
                         { _id: req.body.id },
