@@ -3,9 +3,12 @@ const bcrypt = require("bcrypt");
 const User = require("../../models/User");
 const moment = require("moment/moment");
 const  sendEmail  = require("../../config/mailer");
-const AWS = require("aws-sdk");
-const s3 = new AWS.S3().v3
+// const AWS = require("aws-sdk");
+// const s3 = new AWS.S3().v3
 const bodyParser = require('body-parser');
+const AWS = require('aws-sdk');
+const { S3Client ,PutObjectCommand} = require('@aws-sdk/client-s3');
+const s3 = new S3Client({ region: 'us-east-2' }); 
 // const stripe = require('stripe')(process.env.STRIPE_KEY);
 
 /** Login user */
@@ -795,15 +798,19 @@ const completeProfile = async (req, res) => {
         }
 
         else {
+            AWS.config.update({
+                region: 'us-east-2', // Replace with your desired region
+            });
             const findUser = await User.findOne({ _id: req.body.id })
-            const image = await s3.putObject({
-                Body: JSON.parse(req.body),
-                Bucket: process.env.BUCKET,
+           
+            const putObjectCommand = new PutObjectCommand({
+                Bucket: 'cyclic-rich-plum-seahorse-hat-us-east-2',
                 Key: filename,
-              }).promise()
-            console.log(image)
-            res.set('Content-type', 'application/json');
-            res.status(200).json({ status: 1, message: 'Upload successful', data: image });
+                Body: 'Hello, this is the content of the file!'
+            });
+        
+            const response = await s3.send(putObjectCommand);
+            console.log('Object uploaded:', response);
             
             if (findUser) {
                     const updateUser = await User.findByIdAndUpdate(
